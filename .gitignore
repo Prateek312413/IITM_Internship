@@ -1,0 +1,23 @@
+# Ignore everything by default
+*
+
+# Allow the gitignore file itself
+!.gitignore
+
+# Allow the documentation and requirements
+!README.md
+!requirements.txt
+
+# Allow the 12 Jupyter Notebooks
+!Battery_SOH_GPR_Scratch.ipynb
+!Battery_SOH_GPR_Sklearn.ipynb
+!California_Housing_GPR_Scratch.ipynb
+!California_Housing_GPR_Sklearn.ipynb
+!Delhi_AQI_GPR_Scratch.ipynb
+!Delhi_AQI_GPR_Sklearn.ipynb
+!Energy_Prediction_GPR_Scratch.ipynb
+!Energy_Prediction_GPR_Sklearn.ipynb
+!NOx_Emissions_GPR_Scratch.ipynb
+!NOx_Emissions_GPR_Sklearn.ipynb
+!Sarcos_Robot_GPR_Scratch.ipynb
+!Sarcos_Robot_GPR_Sklearn.ipynb
