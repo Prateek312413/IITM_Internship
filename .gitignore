@@ -21,3 +21,9 @@
 !NOx_Emissions_GPR_Sklearn.ipynb
 !Sarcos_Robot_GPR_Scratch.ipynb
 !Sarcos_Robot_GPR_Sklearn.ipynb
+
+# Allow Presentation PDFs and TeX sources
+!GPML_Chapters_1_and_2_Presentation.pdf
+!GPML_Chapter_4_Presentation.pdf
+!beamer_chapters1_2.tex
+!beamer_chapter4.tex

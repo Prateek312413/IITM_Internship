@@ -145,6 +145,37 @@ The repository contains exactly the following files:
   | **GPR (Matern)** | 0.154116 | 0.845884 | 8.020153 | 4.152606 |
   | **GPR (SE/RBF)** | 0.179732 | 0.820268 | 8.661074 | 4.431183 |
 
+## 📚 Gaussian Process (GPML) Presentation Slide Decks
+
+This repository includes two comprehensive Beamer presentation slide decks prepared during the **IIT Madras Research Internship** under the guidance of **Prof. Neelesh Shankar Upadhye** (Department of Mathematics):
+
+### 1. 📄 [GPML_Chapters_1_and_2_Presentation.pdf](GPML_Chapters_1_and_2_Presentation.pdf)
+* **Title:** Surrogate Modeling in Statistical Learning: A Deep Dive into Gaussian Processes (Chapters 1 & 2)
+* **Author:** Prateek Raj (BT23CS021)
+* **Key Topics Covered (13 Slides):**
+  * **Supervised Learning Setup:** Continuous regression, discrete classification, and generalisation bounds.
+  * **Inductive Bias & Ambiguity:** Under-determination problem and why every ML algorithm requires inductive bias.
+  * **Restriction vs. Preference Bias:** Parametric constraints vs. Bayesian prior distributions over functions.
+  * **Likelihood & Noise Modeling:** Central Limit Theorem justification for i.i.d. Gaussian noise.
+  * **Weight-Space Bayesian Regression:** Derivation of posterior mean $\boldsymbol{\mu}_{\text{post}}$ and covariance $\boldsymbol{\Sigma}_{\text{post}}$ by completing the square.
+  * **Predictive Distribution:** Integrating out weight parameters to obtain predictive mean and variance (epistemic uncertainty).
+  * **Feature Projections & Dimension Bottleneck:** High-dimensional basis expansion $\boldsymbol{\phi}(\mathbf{x})$, the $N \times N$ matrix inversion bottleneck, and its exact resolution using the **Woodbury Matrix Identity** to invert an $n \times n$ data matrix.
+
+---
+
+### 2. 📄 [GPML_Chapter_4_Presentation.pdf](GPML_Chapter_4_Presentation.pdf)
+* **Title:** Surrogate Modeling in Statistical Learning: Covariance Functions (Chapter 4)
+* **Author:** Prateek Raj (BT23CS021)
+* **Key Topics Covered:**
+  * **Covariance Functions as Similarity Metrics:** Role of kernel design in encoding functional properties.
+  * **Stationarity & Isotropy:** Translation and rotation invariants vs. non-stationary dot product kernels.
+  * **Positive Semidefiniteness (PSD):** Proof of non-negative variance and Gram matrix validity.
+  * **Spectral Density & Bochner’s Theorem:** Dual spatial-frequency representation of kernels via Wiener-Khintchine.
+  * **Path Properties:** Mean Square (MS) continuity and differentiability conditions at the origin.
+  * **Upcrossings & Curvature:** Rice's formula and length-scale relationship to path wriggliness.
+  * **Covariance Families:** Squared Exponential (RBF), $\gamma$-Exponential, Matérn class ($\nu = 1/2, 3/2, 5/2$), and Rational Quadratic (RQ).
+  * **Eigenfunction Analysis:** Mercer's Theorem, spectral decomposition, and numerical kernel approximations.
+
 ---
 
 ## 🛠️ Setup and Installation

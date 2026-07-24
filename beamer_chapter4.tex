@@ -1,0 +1,594 @@
+%==============================================================
+%  Surrogate Modeling in Statistical Learning:
+%  A Deep Dive into Gaussian Processes
+%  GPML Chapter 4 — Covariance Functions — Beamer Source
+%  Author: Prateek Raj (BT23CS021), Naman Shukla (BT24CS032)
+%  IIT Madras | June 2026
+%==============================================================
+
+\documentclass[aspectratio=169, 10pt]{beamer}
+
+%-------------------------------------------------------------
+% THEME & COLOUR SETUP
+%-------------------------------------------------------------
+\usetheme{Madrid}
+\usecolortheme{beaver}
+
+% Custom deep navy + accent palette
+\definecolor{iitmblue}{RGB}{10,49,97}       % deep navy (headers)
+\definecolor{iitmaccent}{RGB}{180,30,30}    % crimson accent
+\definecolor{boxblue}{RGB}{30,60,120}       % tcolorbox title bg
+\definecolor{boxbluebg}{RGB}{235,242,255}   % tcolorbox body bg
+\definecolor{boxgold}{RGB}{160,120,20}      % example box title
+\definecolor{boxgoldbg}{RGB}{252,246,220}   % example box body bg
+\definecolor{lightgray}{RGB}{248,248,248}   % slide body bg
+\definecolor{mathblue}{RGB}{20,60,140}      % inline math emphasis
+
+% Override Madrid palette
+\setbeamercolor{palette primary}  {bg=iitmblue, fg=white}
+\setbeamercolor{palette secondary}{bg=iitmblue!85, fg=white}
+\setbeamercolor{palette tertiary} {bg=iitmblue!70, fg=white}
+\setbeamercolor{palette quaternary}{bg=iitmblue, fg=white}
+\setbeamercolor{structure}{fg=iitmblue}
+\setbeamercolor{frametitle}{bg=iitmblue, fg=white}
+\setbeamercolor{title}{fg=white}
+\setbeamercolor{block title}{bg=boxblue, fg=white}
+\setbeamercolor{block body}{bg=boxbluebg, fg=black}
+\setbeamercolor{block title example}{bg=boxgold, fg=white}
+\setbeamercolor{block body example}{bg=boxgoldbg, fg=black}
+\setbeamercolor{alerted text}{fg=iitmaccent}
+\setbeamercolor{itemize item}{fg=iitmblue}
+\setbeamercolor{itemize subitem}{fg=iitmaccent}
+\setbeamercolor{enumerate item}{fg=iitmblue}
+\setbeamercolor{footline}{bg=iitmblue, fg=white}
+
+% Custom footer with slide numbers on the bottom right (e.g. 3 / 28)
+\setbeamertemplate{footline}{%
+  \hfill%
+  \color{gray!80!black}%
+  \scriptsize%
+  \insertframenumber\,/\,\inserttotalframenumber\kern1.5em\vskip1.5ex%
+}
+
+%-------------------------------------------------------------
+% FONTS & PACKAGES
+%-------------------------------------------------------------
+\usepackage[T1]{fontenc}
+\usepackage[expansion=false]{microtype}
+\usepackage{amsmath, amssymb, amsthm, bm}
+\usepackage{mathtools}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\hypersetup{colorlinks=false, pdfauthor={Prateek Raj}, pdftitle={Surrogate Modeling in Statistical Learning: Covariance Functions}}
+
+%-------------------------------------------------------------
+% LAYOUT / BOXES (tcolorbox)
+%-------------------------------------------------------------
+\usepackage[most]{tcolorbox}
+\tcbuselibrary{skins, breakable}
+
+% ── Blue info box ─────────────────────────────────────────
+\newtcolorbox{infobox}[1]{
+  enhanced, colback=boxbluebg, colframe=boxblue,
+  fonttitle=\bfseries\small, title=#1,
+  coltitle=white, attach boxed title to top left={yshift=-2mm, xshift=4mm},
+  boxed title style={colback=boxblue, sharp corners},
+  sharp corners, boxrule=0.5pt, left=4pt, right=4pt, top=6pt, bottom=4pt
+}
+
+% ── Gold example box ──────────────────────────────────────
+\newtcolorbox{examplebox}[1]{
+  enhanced, colback=boxgoldbg, colframe=boxgold,
+  fonttitle=\bfseries\small, title=#1,
+  coltitle=white, attach boxed title to top left={yshift=-2mm, xshift=4mm},
+  boxed title style={colback=boxgold, sharp corners},
+  sharp corners, boxrule=0.5pt, left=4pt, right=4pt, top=6pt, bottom=4pt
+}
+
+% ── Two-column equal-split ─────────────────────────────────
+\newtcolorbox{leftcol}{
+  enhanced, colback=boxbluebg, colframe=boxblue,
+  sharp corners, boxrule=0.5pt, left=4pt, right=4pt, top=4pt, bottom=4pt
+}
+\newtcolorbox{rightcol}{
+  enhanced, colback=boxbluebg, colframe=iitmaccent,
+  sharp corners, boxrule=0.5pt, left=4pt, right=4pt, top=4pt, bottom=4pt
+}
+
+%-------------------------------------------------------------
+% BEAMER INNER THEME TWEAKS
+%-------------------------------------------------------------
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{itemize item}{\scriptsize\raise1pt\hbox{$\blacktriangleright$}}
+\setbeamertemplate{itemize subitem}{\scriptsize\raise1pt\hbox{$\circ$}}
+\setbeamerfont{frametitle}{size=\normalsize, series=\bfseries}
+\setbeamerfont{block title}{size=\small, series=\bfseries}
+\setbeamerfont{block body}{size=\footnotesize}
+
+%-------------------------------------------------------------
+% MATH SHORTCUTS
+%-------------------------------------------------------------
+\newcommand{\GP}{\mathcal{GP}}
+\newcommand{\N}{\mathcal{N}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\bw}{\mathbf{w}}
+\newcommand{\bx}{\mathbf{x}}
+\newcommand{\by}{\mathbf{y}}
+\newcommand{\bX}{X}
+\newcommand{\bphi}{\boldsymbol{\phi}}
+\newcommand{\bmu}{\boldsymbol{\mu}}
+\newcommand{\bSigma}{\boldsymbol{\Sigma}}
+\newcommand{\btheta}{\boldsymbol{\theta}}
+\newcommand{\sn}{\sigma_n^2}
+\newcommand{\sigf}{\sigma_f^2}
+\newcommand{\Ky}{K_y}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+%-------------------------------------------------------------
+% TITLE PAGE INFORMATION
+%-------------------------------------------------------------
+\title[Covariance Functions]{%
+  \textbf{Surrogate Modeling in Statistical Learning:}\\[2pt]
+  \large Covariance Functions}
+
+\author[Prateek Raj]{%
+  \textbf{Prateek Raj (BT23CS021)}}
+
+\institute[IIT Madras]{%
+  \footnotesize Indian Institute of Technology Madras\\[4pt]
+  \footnotesize Research Intern under the guidance of:\\
+  \footnotesize \textbf{Prof.~Neelesh Shankar Upadhye}\\
+  \footnotesize Department of Mathematics}
+
+\date{July 2026}
+
+%==============================================================
+\begin{document}
+%==============================================================
+
+%-------------------------------------------------------------
+% SLIDE 1: TITLE
+%-------------------------------------------------------------
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+
+%-------------------------------------------------------------
+% SLIDE 2: OUTLINE
+%-------------------------------------------------------------
+\begin{frame}{Outline}
+  
+  \begin{columns}[t]
+    \column{0.48\textwidth}
+      \begin{block}{1.\ Preliminaries \& Definitions}
+        \scriptsize
+        \begin{itemize}\setlength\itemsep{0pt}
+          \item Role of Covariance Functions
+          \item Stationarity vs.\ Isotropy
+          \item Positive Semidefiniteness (PSD)
+          \item Mean Square Continuity \& Differentiability
+          \item Bochner's Theorem \& Spectral Density
+        \end{itemize}
+      \end{block}
+      
+      \begin{block}{2.\ Stationary Covariance Functions}
+        \scriptsize
+        \begin{itemize}\setlength\itemsep{0pt}
+          \item RBF \& $\gamma$-Exponential Kernels
+          \item Matérn Class \& Half-Integer Simplifications
+          \item Rational Quadratic Covariance
+        \end{itemize}
+      \end{block}
+      
+      
+    \column{0.48\textwidth}
+      \begin{block}{3.\ Non-Stationary Covariance Functions}
+        \scriptsize
+        \begin{itemize}\setlength\itemsep{0pt}
+          \item Dot Product Covariance Functions
+          \item Other Non-Stationary Kernels
+          \item Making New Kernels from Old
+        \end{itemize}
+      \end{block}
+      
+      \begin{block}{4.\ Eigenfunction Analysis of Kernels}
+        \scriptsize
+        \begin{itemize}\setlength\itemsep{0pt}
+          \item Eigenvalues and Eigenfunctions
+          \item Mercer's Theorem
+          \item Analytical \& Numerical Approximations
+        \end{itemize}
+      \end{block}
+  \end{columns}
+\end{frame}
+
+%==============================================================
+% SECTION 1: PRELIMINARIES & DEFINITIONS
+%==============================================================
+\section{Preliminaries \& Definitions}
+
+%-------------------------------------------------------------
+% SLIDE 3: THE CORE CONCEPT
+%-------------------------------------------------------------
+\begin{frame}{The Core Concept: Covariance defines Similarity}
+  
+  \begin{itemize}
+    \item \textbf{What exactly is a Kernel?} A covariance (kernel) function defines the covariance between the function values at any two points $\bx_i$ and $\bx_j$:
+      \[
+        k(\bx_i, \bx_j) = \text{Cov}(f(\bx_i), f(\bx_j))
+      \]
+      
+    \item \textbf{Measuring Relationship:} It tells us how strongly the function values $f(\bx_i)$ and $f(\bx_j)$ are related:
+      \begin{itemize}
+        \item \textbf{Positive Covariance ($>0$):} As one function value increases, the other tends to increase.
+        \item \textbf{Negative Covariance ($<0$):} As one function value increases, the other tends to decrease.
+        \item \textbf{Zero Covariance ($=0$):} The function values are not correlated.
+      \end{itemize}
+      
+    \item \textbf{The Heart of GP Modeling:} Since GP predictions depend entirely on the covariance function $k$, kernel design is crucial. It encodes assumptions about the functions, determining properties such as smoothness and periodicity.
+  \end{itemize}
+\end{frame}
+
+%-------------------------------------------------------------
+% SLIDE 4: STATIONARITY & ISOTROPY
+%-------------------------------------------------------------
+\begin{frame}{Stationarity, Isotropy, and Dot Product Kernels}
+  
+  How does the kernel respond to translation and rotation in input space?
+  
+  \vspace{4pt}
+  \begin{columns}[t]
+    \column{0.48\textwidth}
+      \begin{block}{Stationary \& Isotropic (Distance-Based)}
+        \scriptsize
+        \begin{itemize}
+          \item \textbf{Stationary:} Depends only on the difference vector $\boldsymbol{\tau} = \bx - \bx'$ (translation invariant):
+            \[ k(\bx, \bx') = k(\boldsymbol{\tau}) \]
+            Sample functions exhibit homogeneous behavior across the domain.
+          \item \textbf{Isotropic:} Depends only on Euclidean distance $r = \|\bx - \bx'\|$ (translation and rotation invariant):
+            \[ k(\bx, \bx') = k(r) \]
+            Perfect for fields where close points behave similarly (e.g., temperature, air quality).
+        \end{itemize}
+      \end{block}
+    \column{0.48\textwidth}
+      
+      \begin{block}{Non-Stationary \& Dot Product}
+        \scriptsize
+        \begin{itemize}
+          \item \textbf{Non-Stationary:} Covariance depends on absolute input coordinates rather than just relative displacement (e.g., spatial models with boundary effects).
+          \item \textbf{Dot Product:} Depends only on the inner product $\bx \cdot \bx'$ (invariant under orthogonal transformations, but non-stationary):
+            \[ k(\bx, \bx') = g(\bx \cdot \bx') \]
+            for some scalar function $g$. Examples include linear and polynomial kernels.
+        \end{itemize}
+      \end{block}
+  \end{columns}
+\end{frame}
+
+%-------------------------------------------------------------
+% SLIDE 5: Positive Semidefiniteness
+%-------------------------------------------------------------
+\begin{frame}{Mathematical Validity: Positive Semidefiniteness (PSD)}
+  
+  Can we choose any function as a kernel? No, it must satisfy a strict condition: Positive Semidefiniteness (PSD).
+  
+  \begin{columns}[t]
+    \column{0.48\textwidth}
+      \begin{block}{Intuition: Variance Can't Be Negative}
+        \scriptsize
+        Let $\mathbf{f}$ be a random vector of GP outputs. Consider any linear combination $z = \mathbf{a}^T \mathbf{f}$.
+        \[
+          \text{Var}(z) = \mathbf{a}^T K \mathbf{a}
+        \]
+        Since variance must be non-negative ($\text{Var}(z) \ge 0$), we require the quadratic form condition:
+        \[
+          \mathbf{a}^T K \mathbf{a} \ge 0 \quad \forall \, \mathbf{a} \in \mathbb{R}^N
+        \]
+        Any function violating this cannot represent a valid covariance function.
+      \end{block}
+    \column{0.48\textwidth}
+      
+      \begin{block}{Gram Matrix \& Continuous Analogue}
+        \scriptsize
+        \begin{itemize}
+          \item \textbf{Gram Matrix:} The covariance matrix $K_{ij} = k(\bx_i, \bx_j)$ is a Gram matrix, which must be positive semidefinite for any finite set of inputs.
+          \item \textbf{Continuous Analogue}: In the continuous limit, the covariance operator must be non-negative:
+            \[
+              \iint k(\bx, \bx') f(\bx) f(\bx') \, d\bx \, d\bx' \ge 0
+            \]
+            for every square-integrable function $f(\bx) \in L^2(\mathcal{X})$, ensuring the covariance operator never produces negative variance.
+        \end{itemize}
+      \end{block}
+  \end{columns}
+\end{frame}
+
+%-------------------------------------------------------------
+% SLIDE 6: BOCHNER'S THEOREM
+%-------------------------------------------------------------
+\begin{frame}{The Frequency View: Bochner \& Wiener-Khintchine}
+  
+  Shift the question: \emph{What frequencies make up the function?}
+  
+  \begin{columns}[t]
+    \column{0.48\textwidth}
+      \begin{block}{Spatial Domain $\leftrightarrow$ Frequency Domain}
+        \scriptsize
+        \begin{itemize}
+          \item \textbf{Smooth Functions:} Contain mainly low frequencies.
+          \item \textbf{Noisy/Rough Functions:} Contain high frequencies.
+          \item \textbf{Spectral Density $S(\mathbf{s})$:} Describes how much power is present at frequency $\mathbf{s}$.
+          \item \textbf{PSD Dual:} Non-negativity in the frequency domain ($S(\mathbf{s}) \ge 0$, representing a non-negative power spectrum) is equivalent to positive semidefiniteness in the spatial domain.
+        \end{itemize}
+      \end{block}
+    \column{0.48\textwidth}
+      
+      \begin{block}{Fourier Transform Pairs (Wiener-Khintchine)}
+        \scriptsize
+        $k(\boldsymbol{\tau})$ and $S(\mathbf{s})$ contain the exact same information:
+        \[
+          k(\boldsymbol{\tau}) = \int S(\mathbf{s}) e^{2\pi i \, \mathbf{s} \cdot \boldsymbol{\tau}} d\mathbf{s}
+        \]
+        \[
+          S(\mathbf{s}) = \int k(\boldsymbol{\tau}) e^{-2\pi i \, \mathbf{s} \cdot \boldsymbol{\tau}} d\boldsymbol{\tau}
+        \]
+        \textbf{Smoothness Rule:} The smoothness of GP sample paths depends on how fast $S(\mathbf{s})$ decays at high frequencies.
+      \end{block}
+  \end{columns}
+\end{frame}
+
+%-------------------------------------------------------------
+% SLIDE 7: MS CONTINUITY & DIFFERENTIABILITY
+%-------------------------------------------------------------
+\begin{frame}{Path Properties: Mean Square Continuity \& Differentiability}
+  
+  GP path behavior is determined by the local behavior of the kernel near the origin ($\boldsymbol{\tau} \to \mathbf{0}$).
+  
+  \begin{columns}[t]
+    \column{0.48\textwidth}
+      \begin{block}{Mean Square (MS) Continuity}
+        \scriptsize
+        \textbf{Intuition:} Nearby inputs produce identical outputs in the mean-square limit:
+        \[
+          \lim_{h \to 0} \mathbb{E}\left[(f(x+h) - f(x))^2\right] = 0
+        \]
+        
+        \textbf{Derivation (for zero-mean stationary processes):}
+        \begin{align*}
+          \mathbb{E}\left[(f(x+h) - f(x))^2\right] &= \mathbb{E}[f(x+h)^2] + \mathbb{E}[f(x)^2] \\
+          &\quad - 2\mathbb{E}[f(x+h)f(x)] \\
+          &= k(0) + k(0) - 2k(h) \\
+          &= 2[k(0) - k(h)]
+        \end{align*}
+        As $h \to 0$, we require $\lim_{h \to 0} k(h) = k(0)$.
+        \vspace{4.5pt}
+        
+        \textbf{Result:} A GP is MS continuous iff its kernel is continuous at the origin.
+      \end{block}
+    \column{0.48\textwidth}
+      
+      \begin{block}{Mean Square (MS) Differentiability}
+        \scriptsize
+        \textbf{Intuition:} The derivative $\lim_{h \to 0} \frac{f(x+h) - f(x)}{h}$ exists in mean square.
+        \vspace{4pt}
+        
+        The differentiability of GP paths depends entirely on the differentiability of the kernel.
+        \vspace{4pt}
+        
+        \textbf{Theorem:} A GP is MS differentiable iff the mixed partial derivative exists and remains finite at $x = x'$:
+        \[
+          \frac{\partial^{2} k(x, x')}{\partial x \partial x'} \quad \text{exists and is finite.}
+        \]
+      \end{block}
+  \end{columns}
+\end{frame}
+
+%-------------------------------------------------------------
+% SLIDE 8: EXPECTED UPCROSSINGS
+%-------------------------------------------------------------
+\begin{frame}{Upcrossings, Curvature, and Length Scale}
+  
+  How do we quantify "wriggliness"? We count how often a zero-mean, stationary, MS-differentiable GP crosses a threshold level $u$ from below (upcrossings).
+  
+  \begin{columns}[t]
+    \column{0.48\textwidth}
+      \begin{block}{Rice's Formula \& Curvature}
+        \scriptsize
+        Expected upcrossings in a unit interval:
+        \[
+          \mathbb{E}[N_u] = \frac{1}{2\pi} \sqrt{\frac{-k''(0)}{k(0)}} \exp\left(-\frac{u^2}{2k(0)}\right)
+        \]
+        The term \textbf{$-k''(0)$} is the curvature at the origin, which equals the derivative variance $\text{Var}(f'(x))$:
+        \begin{itemize}
+          \item \textbf{Large curvature:} Kernel bends sharply $\to$ covariance drops rapidly $\to$ function oscillates frequently (many upcrossings).
+          \item \textbf{Small curvature:} Kernel bends gently $\to$ covariance drops slowly $\to$ function oscillates slowly (few upcrossings).
+        \end{itemize}
+      \end{block}
+    \column{0.48\textwidth}
+      
+      \begin{block}{The Length Scale Connection}
+        \scriptsize
+        For the Squared Exponential (SE) kernel:
+        \[
+          k(\tau) = \sigma_f^2 \exp\left(-\frac{\tau^2}{2\ell^2}\right) \Rightarrow -k''(0) = \frac{\sigma_f^2}{\ell^2} \propto \frac{1}{\ell^2}
+        \]
+        \begin{itemize}
+          \item \textbf{Short length scale $\ell \downarrow$:} Curvature $-k''(0) \uparrow \to$ many upcrossings $\to$ very wiggly/rough path.
+          \item \textbf{Long length scale $\ell \uparrow$:} Curvature $-k''(0) \downarrow \to$ few upcrossings $\to$ smooth path.
+        \end{itemize}
+        \vspace{6pt}
+        \centering\textbf{$\ell \to k''(0) \to \text{Crossings} \to \text{Smoothness}$}
+      \end{block}
+  \end{columns}
+\end{frame}
+
+
+%==============================================================
+% SECTION 2: STATIONARY COVARIANCE FUNCTIONS
+%==============================================================
+\section{Stationary Covariance Functions}
+
+%-------------------------------------------------------------
+% SLIDE 9: SQUARED EXPONENTIAL KERNEL
+%-------------------------------------------------------------
+\begin{frame}{Squared Exponential (SE) Covariance}
+  
+  The Squared Exponential (also known as the RBF or Gaussian kernel) is the most widely-used covariance function:
+  \[
+    k_{\text{SE}}(r) = \sigma_f^2 \exp\left(-\frac{r^2}{2\ell^2}\right)
+  \]
+  
+  \begin{columns}[t]
+    \column{0.48\textwidth}
+      \begin{block}{Advantages \& Spectral Decay}
+        \scriptsize
+        \begin{itemize}
+          \item \textbf{Simple \& Powerful:} Standard choice for many ML tasks.
+          \item \textbf{Smooth Paths:} Infinite differentiability of the kernel at the origin guarantees infinitely mean-square differentiable sample paths.
+          \item \textbf{Exponential Decay:} In Bochner's view, its spectral density decays exponentially fast:
+            \[
+              S(s) \propto \exp\left(-c s^2\right)
+            \]
+        \end{itemize}
+      \end{block}
+    \column{0.48\textwidth}
+      
+      \begin{block}{Stein's Critique (Stein 1999)}
+        \scriptsize
+        Michael Stein argued that infinite smoothness is unrealistic for physical processes (e.g., temperatures, geology) because the sample paths are analytic, meaning that observations in a small interval determine the entire function history with probability 1 (analytic continuation). He recommended the \textbf{Matérn class}.
+      \end{block}
+  \end{columns}
+\end{frame}
+
+%-------------------------------------------------------------
+% SLIDE 10: THE gamma-EXPONENTIAL COVARIANCE
+%-------------------------------------------------------------
+\begin{frame}{The $\gamma$-Exponential Covariance}
+  
+  This family generalizes both the exponential and squared exponential kernels:
+  \[
+    k(r) = \exp\left(-\left(\frac{r}{\ell}\right)^\gamma\right) \quad \text{for } 0 < \gamma \le 2
+  \]
+  
+  \begin{columns}[t]
+    \column{0.48\textwidth}
+      \begin{block}{Special Cases}
+        \scriptsize
+        \begin{itemize}
+          \item \textbf{Exponential/OU Kernel ($\gamma = 1$):}
+            \[ k(r) = \exp\left(-\frac{r}{\ell}\right) \]
+            Yields continuous but nowhere differentiable paths.
+          \item \textbf{Squared Exponential Kernel ($\gamma = 2$):}
+            \[ k(r) = \exp\left(-\frac{r^2}{\ell^2}\right) \]
+            Yields infinitely differentiable paths.
+        \end{itemize}
+      \end{block}
+    \column{0.48\textwidth}
+      
+      \begin{block}{Differentiability Limitation}
+        \scriptsize
+        Unlike the Matérn class, which allows continuous control of differentiability, the $\gamma$-exponential process is:
+        \begin{itemize}
+          \item \textbf{Not MS differentiable} for any $\gamma < 2$.
+          \item \textbf{Infinitely MS differentiable} for $\gamma = 2$.
+        \end{itemize}
+        This lack of intermediate smoothness limits its flexibility.
+      \end{block}
+  \end{columns}
+\end{frame}
+
+%-------------------------------------------------------------
+% SLIDE 11: THE MATERN CLASS
+%-------------------------------------------------------------
+\begin{frame}{The Matérn Class: Controllable Smoothness}
+  
+  The Matérn class allows explicit control over the differentiability of the sample paths:
+  \[
+    k_{\text{Matern}}(r) = \sigma_f^2 \frac{2^{1-\nu}}{\Gamma(\nu)} \left(\frac{\sqrt{2\nu}r}{\ell}\right)^\nu K_\nu\left(\frac{\sqrt{2\nu}r}{\ell}\right)
+  \]
+  where $\nu > 0$ is the smoothness parameter, and $K_\nu$ is the modified Bessel function of the second kind of order $\nu$.
+  
+  \begin{itemize}
+    \item \textbf{Differentiability:} GP paths are $m$-times MS differentiable if and only if $\nu > m$.
+      
+    \item \textbf{Frequency Interpretation:} The spectral density decays polynomially (power-law):
+      \[ S(s) \propto \left(\frac{2\nu}{\ell^2} + 4\pi^2 s^2\right)^{-(\nu + D/2)} \]
+      High frequencies survive longer than in the SE kernel, making Matérn more realistic for physical data (e.g., wind, temperature).
+      
+    \item \textbf{Limit:} As $\nu \to \infty$, the Matérn kernel converges to the SE kernel.
+  \end{itemize}
+\end{frame}
+
+%-------------------------------------------------------------
+% SLIDE 12: MATERN SPECIFIC CASES
+%-------------------------------------------------------------
+\begin{frame}{Matérn: Half-Integer Simplifications}
+  
+  When $\nu = p + 1/2$ (for integer $p \ge 0$), the Bessel function disappears, leaving a product of a polynomial of order $p$ and an exponential decay:
+  
+  \vspace{6pt}
+  \begin{columns}[t]
+    \column{0.31\textwidth}
+      \begin{block}{$\nu=1/2$ (Exponential)}
+        \scriptsize
+        \centering
+        \scalebox{0.85}{$k_{1/2}(r) = \sigma_f^2 \exp\left(-\frac{r}{\ell}\right)$}
+        \vspace{4pt}
+        \begin{itemize}
+          \item MS continuous but \emph{nowhere} MS differentiable.
+          \item Corresponds to the \textbf{Ornstein-Uhlenbeck (OU)} process (describes Brownian velocity).
+        \end{itemize}
+      \end{block}
+    \column{0.31\textwidth}
+      
+      \begin{block}{$\nu=3/2$ (Moderate)}
+        \scriptsize
+        \centering
+        \scalebox{0.72}{$k_{3/2}(r) = \sigma_f^2 \left(1 + \frac{\sqrt{3}r}{\ell}\right) \exp\left(-\frac{\sqrt{3}r}{\ell}\right)$}
+        \vspace{4pt}
+        \begin{itemize}
+          \item \emph{Once} MS differentiable.
+          \item Ideal for modeling physical fields with moderately abrupt transitions.
+        \end{itemize}
+      \end{block}
+    \column{0.31\textwidth}
+      
+      \begin{block}{$\nu=5/2$ (Standard)}
+        \scriptsize
+        \centering
+        \scalebox{0.62}{$k_{5/2}(r) = \sigma_f^2 \left(1 + \frac{\sqrt{5}r}{\ell} + \frac{5r^2}{3\ell^2}\right) \exp\left(-\frac{\sqrt{5}r}{\ell}\right)$}
+        \vspace{4pt}
+        \begin{itemize}
+          \item \emph{Twice} MS differentiable.
+          \item Standard recommendation for most machine learning tasks.
+        \end{itemize}
+      \end{block}
+  \end{columns}
+\end{frame}
+
+%-------------------------------------------------------------
+% SLIDE 13: RATIONAL QUADRATIC
+%-------------------------------------------------------------
+\begin{frame}{Rational Quadratic (RQ) Covariance}
+  
+  The Rational Quadratic covariance is equivalent to an infinite mixture of SE kernels with different length-scales:
+  \[
+    k_{\text{RQ}}(r) = \sigma_f^2 \left(1 + \frac{r^2}{2\alpha \ell^2}\right)^{-\alpha}
+  \]
+  where $\alpha > 0$ controls the shape of the mixture.
+  \begin{itemize}
+    \item \textbf{Multi-Scale Modeling:}\\
+      Useful for processes containing both fast local variations and slow global trends. As $\alpha \to \infty$, the RQ kernel converges back to the SE kernel:
+      \[
+        \lim_{\alpha \to \infty} \left(1 + \frac{r^2}{2\alpha \ell^2}\right)^{-\alpha} = \exp\left(-\frac{r^2}{2\ell^2}\right)
+      \]
+  \end{itemize}
+\end{frame}
+
+
+
+%-------------------------------------------------------------
+% SLIDE 17: THANK YOU
+\end{document}
+%==============================================================
