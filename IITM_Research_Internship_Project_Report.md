@@ -1,19 +1,19 @@
 # RESEARCH INTERNSHIP PROJECT REPORT
-**Department of Mathematics, Indian Institute of Technology Madras**
 
 ---
 
 ### **Project Title:** Surrogate Modeling in Statistical Learning: Theoretical Foundations, Algorithm Engineering, and Real-World Benchmark Applications of Gaussian Process Regression  
 **Internship Period:** May 25, 2026 – July 5, 2026  
 **Student Name:** Prateek Raj (Roll No.: BT23CS021)  
-**Supervisor / Guide:** Prof. Neelesh Shankar Upadhye, Department of Mathematics, IIT Madras  
+**Supervisor / Guide:** Prof. Neelesh Shankar Upadhye  
+**Department of Mathematics, Indian Institute of Technology Madras**  
 **Repository:** [https://github.com/Prateek312413/IITM_Internship](https://github.com/Prateek312413/IITM_Internship)  
 
 ---
 
 ## 📌 EXECUTIVE SUMMARY
 
-During the 6-week research internship from **May 25, 2026, to July 5, 2026**, under the mentorship of **Prof. Neelesh Shankar Upadhye**, I conducted an in-depth investigation into non-parametric Bayesian machine learning, specifically focusing on **Gaussian Process Regression (GPR)**. 
+During the 6-week research internship from **May 25, 2026, to July 5, 2026**, under the supervision of **Prof. Neelesh Shankar Upadhye**, I conducted an in-depth investigation into non-parametric Bayesian machine learning, specifically focusing on **Gaussian Process Regression (GPR)**. 
 
 The primary objectives of this research project were:
 1. **Mathematical Foundations & Theoretical Study:** Deep exploration of non-parametric surrogate modeling, weight-space vs. function-space views, inductive bias, likelihood formulations, spectral properties, and kernel design based on *Gaussian Processes for Machine Learning (GPML)* by Rasmussen & Williams (Chapters 1, 2, and 4).
@@ -169,15 +169,3 @@ During this internship period (May 25 – July 5, 2026), I successfully delivere
 2. **Clean Codebase:** 12 fully-documented Jupyter Notebooks providing side-by-side comparison of from-scratch NumPy/SciPy implementations against Scikit-Learn.
 3. **Empirical Benchmarks:** Demonstrated that Gaussian Process Regression consistently outperforms traditional linear, polynomial, tree-based, and neighbor-based regressors on complex continuous tasks (achieving up to **98.87% accuracy** on battery SOH and **$R^2 = 0.9600$** on SARCOS dynamics).
 4. **Open-Source Repository:** Published all code, datasets, and presentation slide decks at [GitHub: Prateek312413/IITM_Internship](https://github.com/Prateek312413/IITM_Internship).
-
----
-
-**Report Prepared By:**  
-**Prateek Raj (BT23CS021)**  
-Research Intern, Department of Mathematics  
-Indian Institute of Technology Madras  
-
-**Submitted To:**  
-**Prof. Neelesh Shankar Upadhye**  
-Department of Mathematics  
-Indian Institute of Technology Madras  
