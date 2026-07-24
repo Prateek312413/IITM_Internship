@@ -174,7 +174,6 @@ This repository includes two comprehensive Beamer presentation slide decks prepa
   * **Path Properties:** Mean Square (MS) continuity and differentiability conditions at the origin.
   * **Upcrossings & Curvature:** Rice's formula and length-scale relationship to path wriggliness.
   * **Covariance Families:** Squared Exponential (RBF), $\gamma$-Exponential, Matérn class ($\nu = 1/2, 3/2, 5/2$), and Rational Quadratic (RQ).
-  * **Eigenfunction Analysis:** Mercer's Theorem, spectral decomposition, and numerical kernel approximations.
 
 ---
 
