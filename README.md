@@ -29,7 +29,7 @@ The repository contains exactly the following files:
 ### 1. Battery State-of-Health (SOH) Prediction
 * **Notebooks:** [Battery_SOH_GPR_Scratch.ipynb](Battery_SOH_GPR_Scratch.ipynb) | [Battery_SOH_GPR_Sklearn.ipynb](Battery_SOH_GPR_Sklearn.ipynb)
 * **Dataset:** NASA Li-ion Battery Aging Dataset (B0005). The dataset tracks battery capacity degradation over charge/discharge cycles at room temperature.
-* **Size:** 168 discharge cycles.
+* **Size:** 168 discharge cycles (117 training cycles, 51 test cycles).
 * **Features:** Voltage, current, temperature, and elapsed time under discharge.
 * **Target Variable:** State of Health (SOH) capacity (Ah).
 * **Summary Table:**
@@ -51,7 +51,7 @@ The repository contains exactly the following files:
 ### 2. California Housing Value Prediction
 * **Notebooks:** [California_Housing_GPR_Scratch.ipynb](California_Housing_GPR_Scratch.ipynb) | [California_Housing_GPR_Sklearn.ipynb](California_Housing_GPR_Sklearn.ipynb)
 * **Dataset:** StatLib California Housing dataset (derived from the 1990 US Census). 
-* **Size:** Subsampled to 2,000 training points and 1,000 test points for GPR computation efficiency.
+* **Size:** 20,640 total samples. 80/20 train/test split: **16,512 training samples** and **4,128 test samples**.
 * **Features:** Median income, housing median age, average rooms, average bedrooms, population, average occupancy, latitude, longitude.
 * **Target Variable:** Median house value (in $100k blocks).
 * **Summary Table:**
@@ -71,7 +71,7 @@ The repository contains exactly the following files:
 ### 3. Delhi Air Quality Index (AQI) Forecasting
 * **Notebooks:** [Delhi_AQI_GPR_Scratch.ipynb](Delhi_AQI_GPR_Scratch.ipynb) | [Delhi_AQI_GPR_Sklearn.ipynb](Delhi_AQI_GPR_Sklearn.ipynb)
 * **Dataset:** Central Pollution Control Board (CPCB) India hourly and daily AQI tracking database.
-* **Size:** Hourly entries filtered to 3,000 samples for model training/testing.
+* **Size:** 16,000 hourly samples (71 features) sampled after cleaning. 90/10 train/test split: **14,400 training samples** and **1,600 test samples**.
 * **Features:** Air pollutants values (PM2.5, PM10, NO, NO2, NOx, CO, SO2, O3, Benzene, Toluene, Xylene).
 * **Target Variable:** Air Quality Index (AQI).
 * **Summary Table:**
@@ -91,7 +91,7 @@ The repository contains exactly the following files:
 ### 4. Residential Building Energy Efficiency
 * **Notebooks:** [Energy_Prediction_GPR_Scratch.ipynb](Energy_Prediction_GPR_Scratch.ipynb) | [Energy_Prediction_GPR_Sklearn.ipynb](Energy_Prediction_GPR_Sklearn.ipynb)
 * **Dataset:** UCI Energy Efficiency Dataset (ENB2012). Simulates various residential building shapes and properties.
-* **Size:** 768 building shapes.
+* **Size:** 768 total samples (8 features). 60/40 train/test split: **460 training samples** and **308 test samples**.
 * **Features:** Relative compactness, surface area, wall area, roof area, overall height, orientation, glazing area, glazing area distribution.
 * **Target Variable:** Heating Load ($Y_1$).
 * **Summary Table:**
@@ -113,7 +113,7 @@ The repository contains exactly the following files:
 ### 5. Gas Turbine NOx Emissions Prediction
 * **Notebooks:** [NOx_Emissions_GPR_Scratch.ipynb](NOx_Emissions_GPR_Scratch.ipynb) | [NOx_Emissions_GPR_Sklearn.ipynb](NOx_Emissions_GPR_Sklearn.ipynb)
 * **Dataset:** UCI Gas Turbine CO and NOx Emissions Dataset.
-* **Size:** 7,384 samples for benchmarking.
+* **Size:** 7,151 cleaned samples (10 features). 80/20 train/test split: **5,720 training samples** and **1,431 test samples**.
 * **Features:** Ambient temperature, pressure, humidity, air filter difference pressure, gas turbine exhaust pressure, compressor discharge pressure, energy yield, carbon monoxide.
 * **Target Variable:** NOx emissions ($mg/m^3$).
 * **Summary Table:**
@@ -133,7 +133,7 @@ The repository contains exactly the following files:
 ### 6. SARCOS Robot Arm Dynamics (Inverse Kinematics)
 * **Notebooks:** [Sarcos_Robot_GPR_Scratch.ipynb](Sarcos_Robot_GPR_Scratch.ipynb) | [Sarcos_Robot_GPR_Sklearn.ipynb](Sarcos_Robot_GPR_Sklearn.ipynb)
 * **Dataset:** GPML SARCOS Robot Arm data. Models inverse kinematics for an anthropomorphic robot arm.
-* **Size:** 5,000 training samples and 1,000 test samples.
+* **Size:** Full dataset of 44,484 training and 4,449 test samples (21 features). Subsampled for GPR to **5,000 training samples** and **1,000 test samples**.
 * **Features:** 21 variables representing joint positions (7), velocities (7), and accelerations (7).
 * **Target Variable:** Torque on the first joint.
 * **Summary Table:**
