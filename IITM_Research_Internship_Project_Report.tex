@@ -1,0 +1,167 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,bm,mathtools}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage[expansion=false]{microtype}
+\usepackage[most]{tcolorbox}
+\usepackage{enumitem}
+\usepackage{hyperref}
+
+% Palette
+\definecolor{iitmblue}{RGB}{10,49,97}
+\definecolor{iitmaccent}{RGB}{180,30,30}
+\definecolor{boxbg}{RGB}{245,248,252}
+\definecolor{boxborder}{RGB}{30,60,120}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=iitmblue,
+    urlcolor=iitmblue,
+    citecolor=iitmaccent,
+    pdftitle={IITM Research Internship Project Report - Prateek Raj},
+    pdfauthor={Prateek Raj}
+}
+
+\newtcolorbox{summarybox}[1]{
+  enhanced, colback=boxbg, colframe=boxborder,
+  fonttitle=\bfseries\color{white}, title=#1,
+  boxrule=0.8pt, sharp corners, left=8pt, right=8pt, top=8pt, bottom=8pt
+}
+
+\title{\vspace{-1.5cm}\color{iitmblue}\Huge\bfseries Research Internship Project Report\\[6pt]
+\Large Surrogate Modeling in Statistical Learning: Theoretical Foundations, Algorithm Engineering, and Real-World Benchmark Applications of Gaussian Process Regression}
+
+\author{\textbf{Prateek Raj} (Roll No.: BT23CS021)\\[3pt]
+\small Research Intern, Department of Mathematics, IIT Madras\\[2pt]
+\small Guided by: \textbf{Prof. Neelesh Shankar Upadhye}, Department of Mathematics, IIT Madras}
+\date{\textbf{Internship Period:} May 25, 2026 -- July 5, 2026}
+
+\begin{document}
+\maketitle
+
+\vspace{-0.5cm}
+\begin{summarybox}{EXECUTIVE SUMMARY}
+During the 6-week research internship from \textbf{May 25, 2026, to July 5, 2026}, under the supervision of \textbf{Prof. Neelesh Shankar Upadhye}, I conducted an in-depth investigation into non-parametric Bayesian machine learning, specifically focusing on \textbf{Gaussian Process Regression (GPR)}. 
+
+The primary achievements of this project include:
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Theoretical Foundations:} In-depth study of non-parametric surrogate modeling, weight-space vs. function-space views, inductive bias, likelihood formulations, spectral density (Bochner's Theorem), path differentiability, and kernel design based on \emph{Gaussian Processes for Machine Learning (GPML)} (Chapters 1, 2, and 4).
+  \item \textbf{Algorithm Engineering (From Scratch):} Building robust numerical implementations of GPR and baseline regressors (Linear Regression, Polynomial Regression, KNN, Decision Trees) from first principles using \textbf{raw NumPy and SciPy}, incorporating \textbf{Cholesky matrix decomposition ($LL^T = K + \sigma_n^2 I$)} for numerical stability.
+  \item \textbf{Empirical Benchmarking:} Evaluating custom implementations against \textbf{Scikit-Learn} across 6 real-world engineering and environmental datasets (12 Jupyter Notebooks in total), demonstrating mathematically identical metrics.
+  \item \textbf{Presentation Slide Decks:} Creating two compiled Beamer slide decks for research communication.
+\end{enumerate}
+\textbf{Repository URL:} \url{https://github.com/Prateek312413/IITM_Internship}
+\end{summarybox}
+
+\section{Theoretical Foundations \& Mathematical Formulations}
+
+\subsection{Supervised Learning \& Inductive Bias}
+In supervised learning, given a dataset $\mathcal{D} = \{(\mathbf{x}_i, y_i)\}_{i=1}^n$ with $\mathbf{x}_i \in \mathbb{R}^d$ and $y_i \in \mathbb{R}$, the goal is to infer $y = f(\mathbf{x}) + \epsilon$. 
+\begin{itemize}
+  \item \textbf{Under-determination Problem:} Training data alone cannot uniquely identify a function; infinitely many functions satisfy any finite dataset.
+  \item \textbf{Restriction Bias (Parametric View):} Constrains the solution space to a rigid parameter family $f(\mathbf{x}) = \mathbf{x}^T \mathbf{w}$, leading to under-fitting on non-linear manifolds.
+  \item \textbf{Preference Bias (Bayesian View):} Places a probability distribution over an infinite class of functions, preferring smoother curves while retaining flexibility.
+\end{itemize}
+
+\subsection{Weight-Space Bayesian Linear Regression}
+Assuming a zero-mean Gaussian prior $\mathbf{w} \sim \mathcal{N}(\mathbf{0}, \boldsymbol{\Sigma}_p)$ and i.i.d. Gaussian noise $\epsilon_i \sim \mathcal{N}(0, \sigma_n^2)$, the likelihood is $p(\mathbf{y} \mid X, \mathbf{w}) = \mathcal{N}(X\mathbf{w}, \sigma_n^2 I)$. Completing the square yields the Gaussian posterior over weights $p(\mathbf{w} \mid X, \mathbf{y}) = \mathcal{N}(\boldsymbol{\mu}_{\text{post}}, \boldsymbol{\Sigma}_{\text{post}})$:
+\begin{equation}
+  \boldsymbol{\Sigma}_{\text{post}} = \left(\boldsymbol{\Sigma}_p^{-1} + \frac{1}{\sigma_n^2} X^T X\right)^{-1}, \qquad \boldsymbol{\mu}_{\text{post}} = \frac{1}{\sigma_n^2} \boldsymbol{\Sigma}_{\text{post}} X^T \mathbf{y}
+\end{equation}
+
+Integrating over posterior weights yields the predictive distribution for a new input $\mathbf{x}_*$:
+\begin{equation}
+  p(y_* \mid \mathbf{x}_*, \mathcal{D}) = \mathcal{N}\left(\frac{1}{\sigma_n^2} \mathbf{x}_*^T \boldsymbol{\Sigma}_{\text{post}} X^T \mathbf{y}, \; \mathbf{x}_*^T \boldsymbol{\Sigma}_{\text{post}} \mathbf{x}_* + \sigma_n^2\right)
+\end{equation}
+
+\subsection{Feature Projections \& The Dimension Bottleneck}
+Mapping inputs into an $N$-dimensional feature space $\boldsymbol{\phi}(\mathbf{x}) \in \mathbb{R}^N$ requires inverting an $N \times N$ matrix $\boldsymbol{\Sigma}_{\text{post}} = \left(\boldsymbol{\Sigma}_p^{-1} + \frac{1}{\sigma_n^2} \Phi^T \Phi\right)^{-1}$. As $N \to \infty$, direct inversion becomes impossible.
+
+\paragraph{Woodbury Matrix Identity Resolution:}
+Applying $(B + U C V)^{-1} = B^{-1} - B^{-1} U (C^{-1} + V B^{-1} U)^{-1} V B^{-1}$, we rewrite the covariance as:
+\begin{equation}
+  \boldsymbol{\Sigma}_{\text{post}} = \boldsymbol{\Sigma}_p - \boldsymbol{\Sigma}_p \Phi^T \left(\Phi \boldsymbol{\Sigma}_p \Phi^T + \sigma_n^2 I\right)^{-1} \Phi \boldsymbol{\Sigma}_p
+\end{equation}
+This transforms matrix inversion from feature size $N \times N$ to data size $n \times n$, defining the Kernel Trick $k(\mathbf{x}, \mathbf{x}') = \boldsymbol{\phi}(\mathbf{x})^T \boldsymbol{\Sigma}_p \boldsymbol{\phi}(\mathbf{x}')$ and establishing the \textbf{Function-Space View}.
+
+\subsection{Covariance Functions \& Path Differentiability (GPML Chapter 4)}
+A Gaussian Process $f(\mathbf{x}) \sim \mathcal{GP}(m(\mathbf{x}), k(\mathbf{x}, \mathbf{x}'))$ is specified by its mean and PSD kernel $k(\mathbf{x}, \mathbf{x}')$:
+\begin{itemize}
+  \item \textbf{Bochner's Theorem:} A stationary kernel $k(\boldsymbol{\tau})$ is positive semidefinite iff it is the Fourier transform of a positive spectral density $S(\mathbf{s}) \ge 0$.
+  \item \textbf{Differentiability:} A GP is $m$-times MS differentiable iff $\frac{\partial^{2m} k(\mathbf{x}, \mathbf{x}')}{\partial x_i^m \partial {x'_i}^m}$ exists and is finite at $\mathbf{x} = \mathbf{x}'$.
+  \item \textbf{Kernel Families Studied:}
+    \begin{itemize}
+      \item \emph{Squared Exponential (RBF):} $k_{\text{SE}}(r) = \sigma_f^2 \exp\left(-\frac{r^2}{2\ell^2}\right)$ (Infinitely differentiable).
+      \item \emph{Matérn Class:} $k_{\text{Matérn}}(r) = \frac{2^{1-\nu}}{\Gamma(\nu)}\left(\frac{\sqrt{2\nu}r}{\ell}\right)^\nu K_\nu\left(\frac{\sqrt{2\nu}r}{\ell}\right)$ ($\nu=1/2$ OU process, $\nu=3/2$ once differentiable, $\nu=5/2$ twice differentiable).
+      \item \emph{Rational Quadratic (RQ):} $k_{\text{RQ}}(r) = \sigma_f^2 \left(1 + \frac{r^2}{2\alpha \ell^2}\right)^{-\alpha}$ (Infinite scale-mixture of RBF kernels).
+    \end{itemize}
+\end{itemize}
+
+\section{Algorithm Engineering \& Implementation Details}
+
+Across 12 Jupyter Notebooks, two parallel framework pipelines were built:
+\begin{enumerate}
+  \item \textbf{From-Scratch Framework (NumPy/SciPy):}
+    \begin{itemize}
+      \item Stable Cholesky decomposition $L L^T = K(X,X) + \sigma_n^2 I$.
+      \item Triangular linear solves (\texttt{scipy.linalg.solve\_triangular}) for $\boldsymbol{\alpha} = L^{-T}(L^{-1}\mathbf{y})$.
+      \item Custom baseline regressors: \texttt{LinearRegressionFromScratch}, \texttt{PolynomialRegressionFromScratch}, \texttt{KNNRegressorFromScratch}, and \texttt{DecisionTreeRegressorFromScratch}.
+    \end{itemize}
+  \item \textbf{Scikit-Learn Benchmarking Framework:} Used \texttt{GaussianProcessRegressor} with L-BFGS-B hyperparameter optimization.
+\end{enumerate}
+
+\section{Real-World Benchmark Applications \& Results}
+
+\subsection{NASA Battery State-of-Health (SOH) Capacity Degradation}
+\begin{itemize}
+  \item \textbf{Dataset:} NASA B0005 Li-ion battery aging dataset (168 discharge cycles: 117 train, 51 test).
+  \item \textbf{Results:} GPR (Matérn 5/2) achieved \textbf{RMSE = 0.010081 (98.872\% Accuracy)}, outperforming Linear Regression (0.0166), Decision Tree (0.0430), and KNN (0.0455).
+\end{itemize}
+
+\subsection{California Housing Value Prediction}
+\begin{itemize}
+  \item \textbf{Dataset:} StatLib California Housing dataset (20,640 total samples: 16,512 train, 4,128 test).
+  \item \textbf{Results:} GPR (Rational Quadratic) achieved \textbf{RMSE = 0.552962 (78.907\% Accuracy)}, outperforming KNN (0.6524), Decision Tree (0.7340), and Linear Regression (0.7451).
+\end{itemize}
+
+\subsection{Delhi Air Quality Index (AQI) Forecasting}
+\begin{itemize}
+  \item \textbf{Dataset:} CPCB India database (16,000 hourly samples: 14,400 train, 1,600 test).
+  \item \textbf{Results:} GPR (Matérn 3/2) achieved \textbf{RMSE = 37.366086 (88.055\% Accuracy)}, outperforming KNN (42.945), Decision Tree (52.127), and Linear Regression (57.085).
+\end{itemize}
+
+\subsection{Residential Building Energy Efficiency (ENB2012)}
+\begin{itemize}
+  \item \textbf{Dataset:} UCI Energy Efficiency dataset (768 samples: 460 train, 308 test).
+  \item \textbf{Results:} Decision Tree achieved \textbf{RMSE = 1.0373 (97.113\% Accuracy)}, while GPR (RBF+RQ Hybrid) achieved \textbf{RMSE = 1.3103 (94.982\% Accuracy)}.
+\end{itemize}
+
+\subsection{Gas Turbine NOx Emissions Prediction}
+\begin{itemize}
+  \item \textbf{Dataset:} UCI Gas Turbine dataset (7,151 cleaned samples: 5,720 train, 1,431 test).
+  \item \textbf{Results:} GPR (Matérn) achieved \textbf{RMSE = 2.889904 (97.094\% Accuracy)}, outperforming KNN (3.2411), Decision Tree (5.2496), and Linear Regression (6.1549).
+\end{itemize}
+
+\subsection{SARCOS Anthropomorphic Robot Arm Dynamics}
+\begin{itemize}
+  \item \textbf{Dataset:} GPML SARCOS dataset (44,484 train / 4,449 test, sampled 5,000 train / 1,000 test).
+  \item \textbf{Results:} GPR (Rational Quadratic) achieved \textbf{SMSE = 0.039985 ($R^2 = 0.960015$)}, outperforming KNN (0.0751) and Ridge Regression (0.0789).
+\end{itemize}
+
+\section{Presentation Decks \& Conclusion}
+Two Beamer slide decks were compiled and published:
+\begin{enumerate}
+  \item \texttt{GPML\_Chapters\_1\_and\_2\_Presentation.pdf} (13 slides: Intro, Inductive Bias, Weight Space, Woodbury Identity).
+  \item \texttt{GPML\_Chapter\_4\_Presentation.pdf} (13 slides: Covariance Functions, PSD, Bochner's Theorem, Kernel Families).
+\end{enumerate}
+
+\bigskip
+\begin{center}
+  \small\textbf{Report Submitted By:} Prateek Raj (BT23CS021) \quad | \quad \textbf{Guided By:} Prof. Neelesh Shankar Upadhye, IIT Madras
+\end{center}
+
+\end{document}
