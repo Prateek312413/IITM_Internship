@@ -93,7 +93,7 @@ The repository contains exactly the following files:
 * **Dataset:** UCI Energy Efficiency Dataset (ENB2012). Simulates various residential building shapes and properties.
 * **Size:** 768 total samples (8 features). 60/40 train/test split: **460 training samples** and **308 test samples**.
 * **Features:** Relative compactness, surface area, wall area, roof area, overall height, orientation, glazing area, glazing area distribution.
-* **Target Variable:** Heating Load ($Y_1$).
+* **Target Variable:** Heating Load (Y₁).
 * **Summary Table:**
   | Model | RMSE | Accuracy (%) |
   | :--- | :---: | :---: |
@@ -115,7 +115,7 @@ The repository contains exactly the following files:
 * **Dataset:** UCI Gas Turbine CO and NOx Emissions Dataset.
 * **Size:** 7,151 cleaned samples (10 features). 80/20 train/test split: **5,720 training samples** and **1,431 test samples**.
 * **Features:** Ambient temperature, pressure, humidity, air filter difference pressure, gas turbine exhaust pressure, compressor discharge pressure, energy yield, carbon monoxide.
-* **Target Variable:** NOx emissions ($mg/m^3$).
+* **Target Variable:** NOx emissions (mg/m³).
 * **Summary Table:**
   | Model | RMSE | Accuracy (%) |
   | :--- | :---: | :---: |
@@ -157,9 +157,9 @@ This repository includes two comprehensive Beamer presentation slide decks prepa
   * **Inductive Bias & Ambiguity:** Under-determination problem and why every ML algorithm requires inductive bias.
   * **Restriction vs. Preference Bias:** Parametric constraints vs. Bayesian prior distributions over functions.
   * **Likelihood & Noise Modeling:** Central Limit Theorem justification for i.i.d. Gaussian noise.
-  * **Weight-Space Bayesian Regression:** Derivation of posterior mean $\boldsymbol{\mu}_{\text{post}}$ and covariance $\boldsymbol{\Sigma}_{\text{post}}$ by completing the square.
+  * **Weight-Space Bayesian Regression:** Derivation of posterior mean μ_post and covariance Σ_post by completing the square.
   * **Predictive Distribution:** Integrating out weight parameters to obtain predictive mean and variance (epistemic uncertainty).
-  * **Feature Projections & Dimension Bottleneck:** High-dimensional basis expansion $\boldsymbol{\phi}(\mathbf{x})$, the $N \times N$ matrix inversion bottleneck, and its exact resolution using the **Woodbury Matrix Identity** to invert an $n \times n$ data matrix.
+  * **Feature Projections & Dimension Bottleneck:** High-dimensional basis expansion φ(x), the N × N matrix inversion bottleneck, and its exact resolution using the **Woodbury Matrix Identity** to invert an n × n data matrix.
 
 ---
 
@@ -173,7 +173,7 @@ This repository includes two comprehensive Beamer presentation slide decks prepa
   * **Spectral Density & Bochner’s Theorem:** Dual spatial-frequency representation of kernels via Wiener-Khintchine.
   * **Path Properties:** Mean Square (MS) continuity and differentiability conditions at the origin.
   * **Upcrossings & Curvature:** Rice's formula and length-scale relationship to path wriggliness.
-  * **Covariance Families:** Squared Exponential (RBF), $\gamma$-Exponential, Matérn class ($\nu = 1/2, 3/2, 5/2$), and Rational Quadratic (RQ).
+  * **Covariance Families:** Squared Exponential (RBF), γ-Exponential, Matérn class (ν = 1/2, 3/2, 5/2), and Rational Quadratic (RQ).
 
 ---
 
